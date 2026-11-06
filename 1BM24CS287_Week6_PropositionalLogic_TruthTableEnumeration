@@ -1,0 +1,52 @@
+
+def check_all(kb, query, symbols, model):
+
+    if not symbols:
+        if kb(model):
+            return query(model)
+        else:
+            return True
+
+    p = symbols[0]
+    remaining = symbols[1:]
+
+    return check_all(kb, query, remaining,
+                     {**model, p: True}) and \
+           check_all(kb, query, remaining,
+                     {**model, p: False})
+
+
+def tt_entails(kb, query):
+    symbols = ['P', 'Q', 'R']
+    return check_all(kb, query, symbols, {})
+
+
+def kb(model):
+    P = model['P']
+    Q = model['Q']
+    R = model['R']
+
+    return ((not Q) or P) and \
+           ((not P) or (not Q)) and \
+           (Q or R)
+
+
+# Query 1: R
+def query1(model):
+    return model['R']
+
+
+# Query 2: R -> P
+def query2(model):
+    return (not model['R']) or model['P']
+
+
+# Query 3: Q -> R
+def query3(model):
+    return (not model['Q']) or model['R']
+
+
+# Check all three queries
+print("1. KB entails R:", tt_entails(kb, query1))
+print("2. KB entails R -> P:", tt_entails(kb, query2))
+print("3. KB entails Q -> R:", tt_entails(kb, query3))
