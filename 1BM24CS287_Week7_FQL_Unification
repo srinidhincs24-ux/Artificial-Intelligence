@@ -1,0 +1,62 @@
+
+def is_variable(x):
+    return isinstance(x, str) and x.islower()
+
+
+def occurs(var, term, subst):
+    if var == term:
+        return True
+
+    if isinstance(term, tuple):
+        return any(occurs(var, item, subst) for item in term[1:])
+
+    if term in subst:
+        return occurs(var, subst[term], subst)
+
+    return False
+
+
+def unify(x, y, subst):
+    if x == y:
+        return subst
+
+    if is_variable(x):
+        if x in subst:
+            return unify(subst[x], y, subst)
+
+        if occurs(x, y, subst):
+            return None
+
+        subst[x] = y
+        return subst
+
+    if is_variable(y):
+        return unify(y, x, subst)
+
+    if isinstance(x, tuple) and isinstance(y, tuple):
+
+        if x[0] != y[0] or len(x) != len(y):
+            return None
+
+        for a, b in zip(x[1:], y[1:]):
+            subst = unify(a, b, subst)
+
+            if subst is None:
+                return None
+
+        return subst
+
+    return None
+
+
+# Main Program
+expr1 = ("Eats", "x", "Apple")
+expr2 = ("Eats", "Riya", "y")
+
+result = unify(expr1, expr2, {})
+
+if result is None:
+    print("Unification Failed")
+else:
+    print("Unification Successful")
+    print("Substitution:", result)
